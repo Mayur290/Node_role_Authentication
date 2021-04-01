@@ -3,6 +3,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const passport = require("passport");
 const { connect } = require("mongoose");
+const { MongoClient } = require("mongodb");
 const { success, error } = require("consola");
 // Bring the app constants
 const { DB, PORT } = require("./config");

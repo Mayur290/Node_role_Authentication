@@ -17,13 +17,13 @@ router.post("/register-user", async (req, res) => {
   await userRegister(req.body, "user", res);
 });
 
-// Admin Registration Route
-router.post("/register-admin", async (req, res) => {
+// Employee Registration Route
+router.post("/register-employee", async (req, res) => {
   await userRegister(req.body, "admin", res);
 });
 
-// Super Admin Registration Route
-router.post("/register-super-admin", async (req, res) => {
+//  Admin Registration Route
+router.post("/register-admin", async (req, res) => {
   await userRegister(req.body, "superadmin", res);
 });
 
@@ -32,13 +32,13 @@ router.post("/login-user", async (req, res) => {
   await userLogin(req.body, "user", res);
 });
 
-// Admin Login Route
-router.post("/login-admin", async (req, res) => {
+// Employee Login Route
+router.post("/login-employee", async (req, res) => {
   await userLogin(req.body, "admin", res);
 });
 
-// Super Admin Login Route
-router.post("/login-super-admin", async (req, res) => {
+//  Admin Login Route
+router.post("/login-admin", async (req, res) => {
   await userLogin(req.body, "superadmin", res);
 });
 
@@ -51,7 +51,7 @@ router.get("/profile", userAuth, async (req, res) => {
 
 // Create blog by user
 router.post(
-  "/user-protectd",
+  "/user-blog-create",
   userAuth,
   checkRole(["user"]),
   async (req, res) => {
@@ -72,28 +72,23 @@ router.post(
 );
 
 // Get All blogs created by user
-router.get(
-  "/user-protectd",
-  userAuth,
-  checkRole(["user"]),
-  async (req, res) => {
-    // console.log(req.user);
+router.get("/user-blogs", userAuth, checkRole(["user"]), async (req, res) => {
+  // console.log(req.user);
 
-    try {
-      let content = await Blog.find().sort({
-        createdAt: "desc",
-      });
-      res.json(content);
-    } catch (e) {
-      res.render(`Error Rendering blog: ${err}`);
-    }
-    return res.json("Hello User");
+  try {
+    let content = await Blog.find().sort({
+      createdAt: "desc",
+    });
+    res.json(content);
+  } catch (e) {
+    res.render(`Error Rendering blog: ${err}`);
   }
-);
+  return res.json("Hello User");
+});
 
 // Get All blogs created by user having status true
 router.get(
-  "/user-protectd-final",
+  "/user-blogs-status-true",
   userAuth,
   checkRole(["user"]),
   async (req, res) => {
@@ -113,7 +108,7 @@ router.get(
 
 // Get  blogs created by user having status_admin false
 router.get(
-  "/admin-status",
+  "/admin-status-false",
   userAuth,
   checkRole(["superadmin"]),
   async (req, res) => {
@@ -133,7 +128,7 @@ router.get(
 
 // Update  admin_status  having status_admin false
 router.put(
-  "/admin-status",
+  "/admin-status-false",
   userAuth,
   checkRole(["superadmin"]),
   async (req, res) => {
@@ -164,7 +159,7 @@ router.put(
 
 // Get  blogs created by user having status_employee false
 router.get(
-  "/employee-status",
+  "/employee-status-false",
   userAuth,
   checkRole(["admin"]),
   async (req, res) => {
@@ -187,7 +182,7 @@ router.get(
 
 // Update  employee_status  having status_employee false
 router.put(
-  "/employee-status",
+  "/employee-status-false",
   userAuth,
   checkRole(["admin"]),
   async (req, res) => {
