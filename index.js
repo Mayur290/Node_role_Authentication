@@ -1,6 +1,6 @@
 const cors = require("cors");
 const express = require("express");
-const bp = require("body-parser");
+const bodyParser = require("body-parser");
 const { connect } = require("mongoose");
 const { success, error } = require("consola");
 // Bring the app constants
@@ -10,7 +10,8 @@ const app = express();
 
 //Middlewares
 app.use(cors());
-app.use(bp.json());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // User Router MiddleWare
 app.use("/api/users", require("./routes/users"));

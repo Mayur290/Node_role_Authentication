@@ -3,6 +3,8 @@ const { userRegister } = require("../utils/Auth");
 
 // Users Registration Route
 router.post("/register-user", async (req, res) => {
+  // console.log(`In route req:`);
+  // console.log(req.body);
   await userRegister(req.body, "user", res);
 });
 
@@ -38,3 +40,13 @@ router.post("/admin-protected", async (req, res) => {});
 router.post("/super-admin-protected", async (req, res) => {});
 
 module.exports = router;
+
+// In postman
+// Header=> Content-Type: application/json
+// Body=>
+// {
+//   "username": "register123",
+//   "email": "m_hu_gyan@gmail.com",
+//   "name": "May Mayo Puuo",
+//   "password": "pesapesa"
+// }
