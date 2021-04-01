@@ -1,10 +1,14 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { SECRET } = require("../config");
+const passport = require("passport");
+
 /* @DESC To Register the user ( Admin, Super_Admin, USer)*/
 const userRegister = async (userDets, role, res) => {
   try {
     // Validate the username
-    console.log(`sent data is:  ${userDets.password}`);
+    // console.log(`sent data is:  ${userDets.password}`);
     let usernameNotTaken = await validateUsername(userDets.username);
     if (!usernameNotTaken) {
       return res.status(400).json({
@@ -55,6 +59,92 @@ const validateEmail = async (email) => {
   return user ? false : true;
 };
 
+const userLogin = async (userCreds, role, res) => {
+  let { username, password } = userCreds;
+  // console.log(userCreds);
+  // First Check if the username is in the database
+  const user = await User.findOne({ username });
+  if (!user) {
+    return res.status(404).json({
+      message: "Username is not found. Invalid login credentials.",
+      success: false,
+    });
+  }
+  // We will check the role
+  if (user.role !== role) {
+    return res.status(403).json({
+      message: "Please make sure you are logging in from the right portal.",
+      success: false,
+    });
+  }
+  // That means user is existing and trying to signin fro the right portal
+  // Now check for the password
+  let isMatch = await bcrypt.compare(password, user.password);
+  if (isMatch) {
+    // Sign in the token and issue it to the user
+    let token = jwt.sign(
+      {
+        user_id: user._id,
+        role: user.role,
+        username: user.username,
+        email: user.email,
+      },
+      SECRET,
+      { expiresIn: "7 days" }
+    );
+
+    let result = {
+      username: user.username,
+      role: user.role,
+      email: user.email,
+      token: `Bearer ${token}`,
+      expiresIn: 168,
+    };
+
+    return res.status(200).json({
+      ...result,
+      message: "Hurray! You are now logged in.",
+      success: true,
+    });
+  } else {
+    return res.status(403).json({
+      message: "Incorrect password.",
+      success: false,
+    });
+  }
+};
+
+const userAuth = passport.authenticate("jwt", { session: false });
+
+const checkRole = (roles) => (req, res, next) =>
+  !roles.includes(req.user.role)
+    ? res.status(401).json("Unauthorized")
+    : next();
+
+const serializeUser = (user) => {
+  return {
+    username: user.username,
+    email: user.email,
+    name: user.name,
+    _id: user._id,
+    updatedAt: user.updatedAt,
+    createdAt: user.createdAt,
+  };
+};
+
+const serializeBlog = (blog) => {
+  return {
+    title: blog.title,
+    description: blog.description,
+    status_employee: blog.status_employee,
+    status_admin: blog.status_admin,
+  };
+};
 module.exports = {
+  userAuth,
+  checkRole,
+  userLogin,
   userRegister,
+  serializeUser,
+  serializeBlog,
 };
